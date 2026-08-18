@@ -1,6 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InstantFeed</title>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
-<h1>InstantFeed</h1>
+  <main class="app">
+    <h1>InstantFeed</h1>
+
+    <video id="camera" autoplay playsinline></video>
+    <canvas id="canvas" hidden></canvas>
+
+    <img id="preview" alt="Previzualizare fotografie" hidden>
+
+    <div class="buttons">
+      <button id="startCamera">Pornește camera</button>
+      <button id="capture" disabled>Capture</button>
+      <button id="retake" hidden>Refă fotografia</button>
+      <button id="upload" hidden>Salvează fotografia</button>
+    </div>
+
+    <p id="status"></p>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
