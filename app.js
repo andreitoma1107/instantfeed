@@ -5,28 +5,41 @@ const camera = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const preview = document.getElementById("preview");
 
-const startCameraButton = document.getElementById("startCamera");
-const captureButton = document.getElementById("capture");
-const retakeButton = document.getElementById("retake");
-const uploadButton = document.getElementById("upload");
+const startCameraButton =
+  document.getElementById("startCamera");
 
-const statusText = document.getElementById("status");
+const captureButton =
+  document.getElementById("capture");
 
-const feed = document.getElementById("feed");
-const feedStatus = document.getElementById("feedStatus");
-const refreshFeedButton = document.getElementById("refreshFeed");
+const retakeButton =
+  document.getElementById("retake");
+
+const uploadButton =
+  document.getElementById("upload");
+
+const statusText =
+  document.getElementById("status");
+
+const feed =
+  document.getElementById("feed");
+
+const feedStatus =
+  document.getElementById("feedStatus");
+
+const refreshFeedButton =
+  document.getElementById("refreshFeed");
 
 let stream = null;
 let capturedImage = null;
 
-function setStatus(message, isError = false) {
+function setStatus(message, isError) {
   statusText.textContent = message;
   statusText.className = isError
     ? "status error"
     : "status";
 }
 
-function setFeedStatus(message, isError = false) {
+function setFeedStatus(message, isError) {
   feedStatus.textContent = message;
   feedStatus.className = isError
     ? "feed-status error"
@@ -34,26 +47,30 @@ function setFeedStatus(message, isError = false) {
 }
 
 async function startCamera() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  if (
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ) {
     setStatus(
-      "Camera nu este disponibilă. Deschide site-ul prin HTTPS.",
+      "Camera necesită o pagină HTTPS.",
       true
     );
+
     return;
   }
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: {
-          ideal: "environment"
-        }
-      },
-      audio: false
-    });
+    stream =
+      await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: {
+            ideal: "environment"
+          }
+        },
+        audio: false
+      });
 
     camera.srcObject = stream;
-
     camera.hidden = false;
     preview.hidden = true;
 
@@ -61,27 +78,38 @@ async function startCamera() {
     captureButton.hidden = false;
     captureButton.disabled = false;
 
-    setStatus("Camera este pornită.");
+    setStatus(
+      "Camera este pornită.",
+      false
+    );
   } catch (error) {
     console.error(error);
 
     setStatus(
-      "Nu pot porni camera. Permite accesul la cameră și încearcă din nou.",
+      "Nu pot porni camera.",
       true
     );
   }
 }
 
 function capturePhoto() {
-  if (!stream || !camera.videoWidth || !camera.videoHeight) {
-    setStatus("Camera nu este încă pregătită.", true);
+  if (
+    !stream ||
+    !camera.videoWidth ||
+    !camera.videoHeight
+  ) {
+    setStatus(
+      "Camera nu este pregătită.",
+      true
+    );
+
     return;
   }
 
   canvas.width = camera.videoWidth;
   canvas.height = camera.videoHeight;
 
-  const context = canvas.getContext("2d");
+  var context = canvas.getContext("2d");
 
   context.drawImage(
     camera,
@@ -105,7 +133,10 @@ function capturePhoto() {
   retakeButton.hidden = false;
   uploadButton.hidden = false;
 
-  setStatus("Fotografia este pregătită.");
+  setStatus(
+    "Fotografia este pregătită.",
+    false
+  );
 }
 
 function retakePhoto() {
@@ -122,42 +153,57 @@ function retakePhoto() {
   uploadButton.hidden = true;
   uploadButton.disabled = false;
 
-  setStatus("Poți face o nouă fotografie.");
+  setStatus(
+    "Poți face o nouă fotografie.",
+    false
+  );
 }
 
 async function uploadPhoto() {
   if (!capturedImage) {
-    setStatus("Mai întâi capturează o fotografie.", true);
+    setStatus(
+      "Capturează mai întâi o fotografie.",
+      true
+    );
+
     return;
   }
 
   uploadButton.disabled = true;
-  setStatus("Se salvează fotografia...");
+
+  setStatus(
+    "Se salvează fotografia...",
+    false
+  );
 
   try {
-    const response = await fetch(BACKEND_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify({
-        image: capturedImage
-      })
-    });
+    var response = await fetch(
+      BACKEND_URL,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          image: capturedImage
+        })
+      }
+    );
 
-    if (!response.ok) {
-      throw new Error("Serverul a returnat eroarea " + response.status);
-    }
-
-    const result = await response.json();
+    var result = await response.json();
 
     if (!result.success) {
       throw new Error(
-        result.error || "Fotografia nu a putut fi salvată."
+        result.error ||
+        "Salvarea a eșuat."
       );
     }
 
-    setStatus("Fotografia a fost salvată în Google Drive.");
+    setStatus(
+      "Fotografia a fost salvată.",
+      false
+    );
 
     uploadButton.hidden = true;
 
@@ -166,7 +212,8 @@ async function uploadPhoto() {
     console.error(error);
 
     setStatus(
-      "Eroare la salvare: " + error.message,
+      "Eroare la salvare: " +
+      error.message,
       true
     );
 
@@ -175,87 +222,138 @@ async function uploadPhoto() {
 }
 
 async function loadFeed() {
-  setFeedStatus("Se încarcă fotografiile...");
+  setFeedStatus(
+    "Se încarcă fotografiile...",
+    false
+  );
+
   feed.innerHTML = "";
 
   try {
-    const response = await fetch(
-      BACKEND_URL + "?action=list"
+    var response = await fetch(
+      BACKEND_URL +
+      "?action=list&t=" +
+      Date.now()
     );
 
-    if (!response.ok) {
-      throw new Error("Feed-ul a returnat eroarea " + response.status);
-    }
-
-    const result = await response.json();
+    var result = await response.json();
 
     if (!result.success) {
       throw new Error(
-        result.error || "Feed-ul nu a putut fi încărcat."
+        result.error ||
+        "Feed-ul nu a putut fi încărcat."
       );
     }
 
-    if (!result.photos || result.photos.length === 0) {
-      setFeedStatus("Nu există încă fotografii.");
+    if (
+      !result.photos ||
+      result.photos.length === 0
+    ) {
+      setFeedStatus(
+        "Nu există încă fotografii.",
+        false
+      );
+
       return;
     }
 
-    setFeedStatus("");
+    setFeedStatus("", false);
 
-    result.photos.forEach(function(photo) {
-      const card = document.createElement("article");
-      card.className = "photo-card";
-
-      const image = document.createElement("img");
-      image.src = photo.url;
-      image.alt = photo.name;
-      image.loading = "lazy";
-
-      image.addEventListener("error", function() {
-        image.alt = "Imagine indisponibilă";
-        image.classList.add("image-error");
-      });
-
-      const details = document.createElement("div");
-      details.className = "photo-details";
-
-      const name = document.createElement("p");
-      name.className = "photo-name";
-      name.textContent = photo.name;
-
-      const date = document.createElement("p");
-      date.className = "photo-date";
-      date.textContent = formatDate(photo.created);
-
-      details.appendChild(name);
-      details.appendChild(date);
-
-      card.appendChild(image);
-      card.appendChild(details);
-
-      feed.appendChild(card);
-    });
+    for (var i = 0; i < result.photos.length; i++) {
+      await addPhotoToFeed(result.photos[i]);
+    }
   } catch (error) {
     console.error(error);
 
     setFeedStatus(
-      "Eroare la încărcarea fotografiilor.",
+      "Eroare la încărcarea fotografiilor: " +
+      error.message,
       true
     );
   }
 }
 
-function formatDate(dateValue) {
-  const date = new Date(dateValue);
+async function addPhotoToFeed(photo) {
+  var card =
+    document.createElement("article");
+
+  card.className = "photo-card";
+
+  var image =
+    document.createElement("img");
+
+  image.alt = photo.name;
+  image.loading = "lazy";
+
+  var details =
+    document.createElement("div");
+
+  details.className = "photo-details";
+
+  var name =
+    document.createElement("p");
+
+  name.className = "photo-name";
+  name.textContent = photo.name;
+
+  var date =
+    document.createElement("p");
+
+  date.className = "photo-date";
+  date.textContent =
+    formatDate(photo.created);
+
+  details.appendChild(name);
+  details.appendChild(date);
+
+  card.appendChild(image);
+  card.appendChild(details);
+  feed.appendChild(card);
+
+  try {
+    var response = await fetch(
+      BACKEND_URL +
+      "?action=image&id=" +
+      encodeURIComponent(photo.id) +
+      "&t=" +
+      Date.now()
+    );
+
+    var result = await response.json();
+
+    if (!result.success) {
+      throw new Error(
+        result.error ||
+        "Imaginea nu a putut fi încărcată."
+      );
+    }
+
+    image.src =
+      "data:" +
+      result.mimeType +
+      ";base64," +
+      result.data;
+  } catch (error) {
+    console.error(error);
+    image.alt = "Imagine indisponibilă";
+    image.classList.add("image-error");
+  }
+}
+
+function formatDate(value) {
+  var date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return "";
   }
 
-  return date.toLocaleString("ro-RO", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  });
+  return date.toLocaleString(
+    "ro-RO",
+    {
+      dateStyle: "medium",
+      timeStyle: "short"
+    }
+  );
 }
 
 function stopCamera() {
@@ -263,9 +361,11 @@ function stopCamera() {
     return;
   }
 
-  stream.getTracks().forEach(function(track) {
-    track.stop();
-  });
+  stream.getTracks().forEach(
+    function(track) {
+      track.stop();
+    }
+  );
 
   stream = null;
   camera.srcObject = null;
