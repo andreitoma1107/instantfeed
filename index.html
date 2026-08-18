@@ -3,26 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+
   <title>InstantFeed</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="app">
-    <h1>InstantFeed</h1>
+    <header class="app-header">
+      <h1>InstantFeed</h1>
+      <p>Capturează și distribuie fotografii instantaneu.</p>
+    </header>
 
-    <video id="camera" autoplay playsinline></video>
-    <canvas id="canvas" hidden></canvas>
+    <section class="camera-section">
+      <video
+        id="camera"
+        autoplay
+        playsinline
+        muted
+        aria-label="Previzualizarea camerei">
+      </video>
 
-    <img id="preview" alt="Previzualizare fotografie" hidden>
+      <canvas id="canvas" hidden></canvas>
 
-    <div class="buttons">
-      <button id="startCamera">Pornește camera</button>
-      <button id="capture" disabled>Capture</button>
-      <button id="retake" hidden>Refă fotografia</button>
-      <button id="upload" hidden>Salvează fotografia</button>
-    </div>
+      <img
+        id="preview"
+        alt="Previzualizarea fotografiei"
+        hidden>
+    </section>
 
-    <p id="status"></p>
+    <section class="controls">
+      <button id="startCamera" class="button primary">
+        Pornește camera
+      </button>
+
+      <button id="capture" class="button primary" disabled>
+        Capture
+      </button>
+
+      <button id="retake" class="button secondary" hidden>
+        Refă fotografia
+      </button>
+
+      <button id="upload" class="button success" hidden>
+        Salvează fotografia
+      </button>
+    </section>
+
+    <p id="status" class="status" aria-live="polite"></p>
+
+    <section class="feed-section">
+      <div class="feed-header">
+        <h2>Fotografii recente</h2>
+
+        <button id="refreshFeed" class="button refresh">
+          Reîmprospătează
+        </button>
+      </div>
+
+      <p id="feedStatus" class="feed-status" aria-live="polite"></p>
+
+      <div id="feed" class="feed"></div>
+    </section>
   </main>
 
   <script src="app.js"></script>
